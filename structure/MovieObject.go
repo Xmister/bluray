@@ -1,5 +1,4 @@
 package structure
-import "io"
 import "bytes"
 import "encoding/binary"
 

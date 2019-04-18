@@ -1,19 +1,20 @@
-package structure
+package file
 import "io"
+import "github.com/Xmister/bluray/structure"
 import "bytes"
 import "encoding/binary"
 
-type MovieObjectFile struct {
+type MovieObject struct {
 	TypeIndicator [4]byte
 	TypeIndicator2 [4]byte
-	*MovieObjects
+	*structure.MovieObjects
 }
 
-func NewMovieObjectFile(r *bytes.Reader) (res *MovieObjectFile) {
-	res = &MovieObjectFile{}
+func NewMovieObject(r *bytes.Reader) (res *MovieObject) {
+	res = &MovieObject{}
 	binary.Read(r, binary.BigEndian, &res.TypeIndicator)
 	binary.Read(r, binary.BigEndian, &res.TypeIndicator2)
 	r.Seek(32, io.SeekCurrent)
-	res.MovieObjects = NewMovieObjects(r)
+	res.MovieObjects = structure.NewMovieObjects(r)
 	return
 }
