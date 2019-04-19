@@ -1,6 +1,5 @@
 package structure
 import "io"
-import "bytes"
 import "encoding/binary"
 
 type MovieObjects struct {
@@ -9,7 +8,7 @@ type MovieObjects struct {
 	MovieObjects []*MovieObject
 }
 
-func NewMovieObjects(r *bytes.Reader) (res *MovieObjects) {
+func NewMovieObjects(r io.ReadSeeker) (res *MovieObjects) {
 	res = &MovieObjects{}
 	binary.Read(r, binary.BigEndian, &res.Length)
 	r.Seek(4, io.SeekCurrent)

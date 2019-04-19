@@ -1,6 +1,5 @@
 package file
 import "io"
-import "bytes"
 import "encoding/binary"
 import "github.com/Xmister/bluray/structure"
 
@@ -13,7 +12,7 @@ type Index struct {
 	*structure.Indexes
 }
 
-func NewIndex(r *bytes.Reader) (res *Index) {
+func NewIndex(r io.ReadSeeker) (res *Index) {
 	res = &Index{}
 	binary.Read(r, binary.BigEndian, &res.TypeIndicator)
 	binary.Read(r, binary.BigEndian, &res.TypeIndicator2)

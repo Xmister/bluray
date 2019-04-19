@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type MovieObject struct {
@@ -10,14 +10,14 @@ type MovieObject struct {
 	NavigationCommands []*NavigationCommand
 }
 
-func NewMovieObject(r *bytes.Reader) (res *MovieObject) {
+func NewMovieObject(r io.ReadSeeker) (res *MovieObject) {
 	res = &MovieObject{}
 	var read uint8
 	binary.Read(r, binary.BigEndian, &read)
 	res.ResumeIntentionFlag = read & 2^0
 	res.MenuCallMask = read & 2^1
 	res.TitleSearchMask = read & 2^2
-	r.ReadByte()
+	r.Seek(1, io.SeekCurrent)
 	binary.Read(r, binary.BigEndian, &res.NumberOfNavigationCommands)
 	res.NavigationCommands = make([]*NavigationCommand, res.NumberOfNavigationCommands)
 	for i:=uint16(0); i<res.NumberOfNavigationCommands; i++ {

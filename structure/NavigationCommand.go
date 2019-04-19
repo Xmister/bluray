@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type NavigationCommand struct {
@@ -15,7 +15,7 @@ type NavigationCommand struct {
 	Source uint32
 }
 
-func NewNavigationCommand(r *bytes.Reader) (res *NavigationCommand) {
+func NewNavigationCommand(r io.ReadSeeker) (res *NavigationCommand) {
 	res = &NavigationCommand{}
 	var read uint8
 	binary.Read(r, binary.BigEndian, &read)

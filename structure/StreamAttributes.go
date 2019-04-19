@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type StreamAttributes struct {
@@ -13,9 +13,10 @@ type StreamAttributes struct {
 	LanguageCode [3]byte
 }
 
-func NewStreamAttributes(r *bytes.Reader) (res *StreamAttributes) {
+func NewStreamAttributes(r io.ReadSeeker) (res *StreamAttributes) {
 	res = &StreamAttributes{}
 	binary.Read(r, binary.BigEndian, &res.Length)
+	start, _ := r.Seek(0, io.SeekCurrent)
 	binary.Read(r, binary.BigEndian, &res.StreamCodingType)
 	var read uint8
 	switch res.StreamCodingType {
@@ -34,5 +35,6 @@ func NewStreamAttributes(r *bytes.Reader) (res *StreamAttributes) {
 		binary.Read(r, binary.BigEndian, &res.CharacterCode)
 		binary.Read(r, binary.BigEndian, &res.LanguageCode)
 	}
+	r.Seek(start+int64(res.Length), io.SeekStart)
 	return
 }

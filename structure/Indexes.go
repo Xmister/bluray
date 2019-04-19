@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type Indexes struct {
@@ -10,7 +10,7 @@ type Indexes struct {
 	Titles []*Title
 }
 
-func NewIndexes(r *bytes.Reader) (res *Indexes) {
+func NewIndexes(r io.ReadSeeker) (res *Indexes) {
 	res = &Indexes{}
 	binary.Read(r, binary.BigEndian, &res.Length)
 	res.FirstPlaybackTitle = NewTitle(r)

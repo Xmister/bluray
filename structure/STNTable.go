@@ -1,5 +1,4 @@
 package structure
-import "bytes"
 import "io"
 import "encoding/binary"
 
@@ -26,7 +25,7 @@ type STNTable struct {
 	SecondaryPGStreamEntries []stream
 }
 
-func loadStreams(r *bytes.Reader, n uint8) (res []stream) {
+func loadStreams(r io.ReadSeeker, n uint8) (res []stream) {
 	res = make([]stream, n)
 	for i := uint8(0); i<n; i++ {
 		res[i].StreamEntry = NewStreamEntry(r)
@@ -35,10 +34,11 @@ func loadStreams(r *bytes.Reader, n uint8) (res []stream) {
 	return
 }
 
-func NewSTNTable(r *bytes.Reader) (res *STNTable) {
+func NewSTNTable(r io.ReadSeeker) (res *STNTable) {
 	res = &STNTable{}
 	binary.Read(r, binary.BigEndian, &res.Length)
-	r.ReadByte()
+	r.Seek(1, io.SeekCurrent)
+	r.Seek(1, io.SeekCurrent)
 	binary.Read(r, binary.BigEndian, &res.NumberOfPrimaryVideoStreamEntries)
 	binary.Read(r, binary.BigEndian, &res.NumberOfPrimaryAudioStreamEntries)
 	binary.Read(r, binary.BigEndian, &res.NumberOfPrimaryPGStreamEntries)

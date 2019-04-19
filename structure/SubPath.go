@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type SubPath struct {
@@ -10,12 +10,12 @@ type SubPath struct {
 	SubPlayItems []*SubPlayItem
 }
 
-func NewSubPath(r *bytes.Reader) (res *SubPath) {
+func NewSubPath(r io.ReadSeeker) (res *SubPath) {
 	res = &SubPath{}
 	binary.Read(r, binary.BigEndian, &res.Length)
-	r.ReadByte()
+	r.Seek(1, io.SeekCurrent)
 	binary.Read(r, binary.BigEndian, &res.SubPathType)
-	r.ReadByte()
+	r.Seek(1, io.SeekCurrent)
 	var read uint8
 	binary.Read(r, binary.BigEndian, &read)
 	res.IsRepeatSubPath = (read & 0x01) == 1

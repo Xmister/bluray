@@ -1,7 +1,6 @@
 package file
 import "io"
 import "github.com/Xmister/bluray/structure"
-import "bytes"
 import "encoding/binary"
 
 type MovieObject struct {
@@ -10,7 +9,7 @@ type MovieObject struct {
 	*structure.MovieObjects
 }
 
-func NewMovieObject(r *bytes.Reader) (res *MovieObject) {
+func NewMovieObject(r io.ReadSeeker) (res *MovieObject) {
 	res = &MovieObject{}
 	binary.Read(r, binary.BigEndian, &res.TypeIndicator)
 	binary.Read(r, binary.BigEndian, &res.TypeIndicator2)

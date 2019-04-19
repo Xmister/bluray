@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type SubPlayItem struct {
@@ -17,14 +17,14 @@ type SubPlayItem struct {
 	MultiClipEntries []*PlayItemEntry
 }
 
-func NewSubPlayItem(r *bytes.Reader) (res *SubPlayItem) {
+func NewSubPlayItem(r io.ReadSeeker) (res *SubPlayItem) {
 	res = &SubPlayItem{}
 	binary.Read(r, binary.BigEndian, &res.Length)
 	binary.Read(r, binary.BigEndian, &res.FileName)
 	binary.Read(r, binary.BigEndian, &res.Codec)
-	r.ReadByte()
-	r.ReadByte()
-	r.ReadByte()
+	r.Seek(1, io.SeekCurrent)
+	r.Seek(1, io.SeekCurrent)
+	r.Seek(1, io.SeekCurrent)
 	var read uint8
 	binary.Read(r, binary.BigEndian, &read)
 	read <<=3
@@ -37,7 +37,7 @@ func NewSubPlayItem(r *bytes.Reader) (res *SubPlayItem) {
 	binary.Read(r, binary.BigEndian, &res.SyncStartPTS)
 	if res.IsMultiClipEntries {
 		binary.Read(r, binary.BigEndian, &res.NumberOfMultiClipEntries)
-		r.ReadByte()
+		r.Seek(1, io.SeekCurrent)
 		res.MultiClipEntries = make([]*PlayItemEntry, res.NumberOfMultiClipEntries)
 		for i:=uint8(0); i<res.NumberOfMultiClipEntries; i++ {
 			res.MultiClipEntries[i] = NewPlayItemEntry(r)

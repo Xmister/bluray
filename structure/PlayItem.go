@@ -1,5 +1,4 @@
 package structure
-import "bytes"
 import "io"
 import "encoding/binary"
 
@@ -19,12 +18,12 @@ type PlayItem struct {
 	*STNTable
 }
 
-func NewPlayItem(r *bytes.Reader) (res *PlayItem) {
+func NewPlayItem(r io.ReadSeeker) (res *PlayItem) {
 	res = &PlayItem{}
 	binary.Read(r, binary.BigEndian, &res.Length)
 	binary.Read(r, binary.BigEndian, &res.FileName)
 	binary.Read(r, binary.BigEndian, &res.Codec)
-	r.ReadByte()
+	r.Seek(1, io.SeekCurrent)
 	var read uint8
 	binary.Read(r, binary.BigEndian, &read)
 	read <<=3
@@ -34,7 +33,7 @@ func NewPlayItem(r *bytes.Reader) (res *PlayItem) {
 	binary.Read(r, binary.BigEndian, &res.INTime)
 	binary.Read(r, binary.BigEndian, &res.OUTTime)
 	NewUOMaskTable(r)
-	r.ReadByte() //RandomAccess
+	r.Seek(1, io.SeekCurrent) //RandomAccess
 	r.Seek(3, io.SeekCurrent) //Still stuff
 	if res.IsMultiAngle {
 		binary.Read(r, binary.BigEndian, &res.NumberOfAngles)
@@ -42,8 +41,21 @@ func NewPlayItem(r *bytes.Reader) (res *PlayItem) {
 		res.IsDifferentAudios = (read & 0x01) == 1
 		res.IsSeamlessAudioChange = (read & 0x02) == 1
 		res.Angles = make([]*PlayItemEntry, res.NumberOfAngles)
-		for i:=uint8(0); i<res.NumberOfAngles; i++ {
+		res.Angles[0] = &PlayItemEntry{
+			RefToSTCID: res.RefToSTCID,
+			FileName: res.FileName,
+			Codec: res.Codec,
+		}
+		for i:=uint8(1); i<res.NumberOfAngles; i++ {
 			res.Angles[i] = NewPlayItemEntry(r)
+		}
+	} else {
+		res.Angles = []*PlayItemEntry{
+			&PlayItemEntry{
+				RefToSTCID: res.RefToSTCID,
+				FileName: res.FileName,
+				Codec: res.Codec,
+			},
 		}
 	}
 	res.STNTable = NewSTNTable(r)

@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type StreamEntry struct {
@@ -10,12 +10,10 @@ type StreamEntry struct {
 	RefToSubClipID uint8
 }
 
-func NewStreamEntry(r *bytes.Reader) (res *StreamEntry) {
+func NewStreamEntry(r io.ReadSeeker) (res *StreamEntry) {
 	res = &StreamEntry{}
 	binary.Read(r, binary.BigEndian, &res.Length)
-	if res.Length == 0 {
-		return
-	}
+	start, _ := r.Seek(0, io.SeekCurrent)
 	binary.Read(r, binary.BigEndian, &res.StreamType)
 	switch res.StreamType {
 	case 1, 3:
@@ -25,5 +23,6 @@ func NewStreamEntry(r *bytes.Reader) (res *StreamEntry) {
 		binary.Read(r, binary.BigEndian, &res.RefToSubClipID)
 		binary.Read(r, binary.BigEndian, &res.RefToStreamPID)
 	}
+	r.Seek(start+int64(res.Length), io.SeekStart)
 	return
 }

@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type AppInfoBDMV struct {
@@ -9,15 +9,14 @@ type AppInfoBDMV struct {
 	UserData [8*32]byte
 }
 
-func NewAppInfoBDMV(r *bytes.Reader) (res *AppInfoBDMV) {
+func NewAppInfoBDMV(r io.ReadSeeker) (res *AppInfoBDMV) {
 	res = &AppInfoBDMV{}
 	binary.Read(r, binary.BigEndian, &res.Length)
-	r.ReadByte()
-	binary.Read(r, binary.BigEndian, &res.VideoFormat)
-	res.VideoFormat >>= 4
-	r.UnreadByte()
-	binary.Read(r, binary.BigEndian, &res.FrameRate)
-	res.FrameRate <<= 4
+	r.Seek(1, io.SeekCurrent)
+	var read uint8
+	binary.Read(r, binary.BigEndian, &read)
+	res.VideoFormat = read >> 4
+	res.FrameRate = (read << 4) >> 4
 	r.Read(res.UserData[:])
 	return
 }

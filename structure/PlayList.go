@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type PlayList struct {
@@ -10,11 +10,11 @@ type PlayList struct {
 	SubPaths []*SubPath
 }
 
-func NewPlayList(r *bytes.Reader) (res *PlayList) {
+func NewPlayList(r io.ReadSeeker) (res *PlayList) {
 	res = &PlayList{}
 	binary.Read(r, binary.BigEndian, &res.Length)
-	r.ReadByte()
-	r.ReadByte()
+	r.Seek(1, io.SeekCurrent)
+	r.Seek(1, io.SeekCurrent)
 	binary.Read(r, binary.BigEndian, &res.NumberOfPlayItems)
 	binary.Read(r, binary.BigEndian, &res.NumberOfSubPaths)
 	res.PlayItems = make([]*PlayItem, res.NumberOfPlayItems)

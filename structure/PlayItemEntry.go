@@ -1,5 +1,5 @@
 package structure
-import "bytes"
+import "io"
 import "encoding/binary"
 
 type PlayItemEntry struct {
@@ -8,7 +8,7 @@ type PlayItemEntry struct {
 	Codec [4]byte
 }
 
-func NewPlayItemEntry(r *bytes.Reader) (res *PlayItemEntry) {
+func NewPlayItemEntry(r io.ReadSeeker) (res *PlayItemEntry) {
 	res = &PlayItemEntry{}
 	binary.Read(r, binary.BigEndian, &res.FileName)
 	binary.Read(r, binary.BigEndian, &res.Codec)

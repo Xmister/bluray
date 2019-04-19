@@ -1,6 +1,5 @@
 package file
 import "io"
-import "bytes"
 import "encoding/binary"
 import "github.com/Xmister/bluray/structure"
 
@@ -14,7 +13,7 @@ type MPLS struct {
 	*structure.PlayList
 }
 
-func NewMPLS(r *bytes.Reader) (res *MPLS) {
+func NewMPLS(r io.ReadSeeker) (res *MPLS) {
 	res = &MPLS{}
 	binary.Read(r, binary.BigEndian, &res.TypeIndicator)
 	binary.Read(r, binary.BigEndian, &res.TypeIndicator2)
